@@ -1,0 +1,13 @@
+export interface JwtPayload {
+  sub: string;
+  username: string;
+}
+
+export interface RefreshTokenPayload extends JwtPayload {
+  jti: string;
+}
+
+export interface AuthenticatedUser {
+  id: string;
+  username: string;
+}
