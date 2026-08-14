@@ -1,0 +1,10 @@
+{
+  "name": "ripple",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "web",
+    "mobile",
+    "packages/*"
+  ]
+}
