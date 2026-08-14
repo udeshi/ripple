@@ -8,6 +8,7 @@ NestJS backend for Ripple, running on Fastify with PostgreSQL/Prisma.
 cp .env.example .env
 npm install
 npx prisma migrate dev
+npm run db:seed
 ```
 
 ## Development
@@ -33,3 +34,4 @@ npm run test:e2e
 - `follows` — follow/unfollow, follower and following lists
 - `search` — user and post search
 - `uploads` — storage abstraction (Cloudinary)
+- `flags` — feature flags with deterministic per-user/device rollout percentages, used to gate OTA-delivered mobile features

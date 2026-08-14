@@ -11,6 +11,7 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { CommentsModule } from './comments/comments.module';
 import configuration from './config/configuration';
 import { validate } from './config/env.validation';
+import { FlagsModule } from './flags/flags.module';
 import { FollowsModule } from './follows/follows.module';
 import { LikesModule } from './likes/likes.module';
 import { PostsModule } from './posts/posts.module';
@@ -36,6 +37,7 @@ import { UsersModule } from './users/users.module';
     LikesModule,
     FollowsModule,
     SearchModule,
+    FlagsModule,
   ],
   controllers: [AppController],
   providers: [

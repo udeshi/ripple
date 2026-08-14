@@ -107,3 +107,12 @@ model Follow {
   @@index([followerId])
   @@index([followingId])
 }
+
+model FeatureFlag {
+  id                String   @id @default(uuid())
+  key               String   @unique
+  enabled           Boolean  @default(false)
+  rolloutPercentage Int      @default(100)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
