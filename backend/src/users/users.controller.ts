@@ -7,11 +7,13 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { UploadedImage } from '../common/decorators/uploaded-image.decorator';
+import { OptionalJwtAuthGuard } from '../common/guards/optional-jwt-auth.guard';
 import type { AuthenticatedUser } from '../common/types/jwt-payload.interface';
 import type { UploadedFileData } from '../common/types/uploaded-file.interface';
 import { FileUploadInterceptor } from '../common/interceptors/file-upload.interceptor';
@@ -27,10 +29,19 @@ export class UsersController {
     @Inject(STORAGE_SERVICE) private storageService: StorageService,
   ) {}
 
+  @Get('me')
+  getMe(@CurrentUser() user: AuthenticatedUser) {
+    return this.usersService.getMe(user.id);
+  }
+
   @Public()
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':username')
-  getProfile(@Param('username') username: string) {
-    return this.usersService.getPublicProfile(username);
+  getProfile(
+    @Param('username') username: string,
+    @CurrentUser() user?: AuthenticatedUser,
+  ) {
+    return this.usersService.getPublicProfile(username, user?.id);
   }
 
   @Patch('me')

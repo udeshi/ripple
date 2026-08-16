@@ -19,6 +19,11 @@ const PUBLIC_PROFILE_SELECT = {
   createdAt: true,
 } as const;
 
+const ME_SELECT = {
+  ...PUBLIC_PROFILE_SELECT,
+  email: true,
+} as const;
+
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
@@ -55,7 +60,18 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
-  async getPublicProfile(username: string) {
+  async getMe(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: ME_SELECT,
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async getPublicProfile(username: string, currentUserId?: string) {
     const user = await this.prisma.user.findUnique({
       where: { username },
       select: PUBLIC_PROFILE_SELECT,
@@ -63,7 +79,22 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return user;
+
+    let isFollowedByMe = false;
+    if (currentUserId && currentUserId !== user.id) {
+      const follow = await this.prisma.follow.findUnique({
+        where: {
+          followerId_followingId: {
+            followerId: currentUserId,
+            followingId: user.id,
+          },
+        },
+        select: { id: true },
+      });
+      isFollowedByMe = !!follow;
+    }
+
+    return { ...user, isFollowedByMe };
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
