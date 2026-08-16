@@ -1,13 +1,29 @@
-export interface User {
+export interface UserSummary {
   id: string;
   username: string;
   displayName: string | null;
-  bio: string | null;
   avatarUrl: string | null;
+}
+
+export interface SearchUserResult extends UserSummary {
+  bio: string | null;
+  followersCount: number;
+}
+
+export interface Profile extends UserSummary {
+  bio: string | null;
   followersCount: number;
   followingCount: number;
   postsCount: number;
   createdAt: string;
+}
+
+export interface PublicProfile extends Profile {
+  isFollowedByMe: boolean;
+}
+
+export interface Me extends Profile {
+  email: string;
 }
 
 export interface AuthUser {
@@ -24,17 +40,10 @@ export interface AuthResponse {
   refreshToken: string;
 }
 
-export interface PostAuthor {
-  id: string;
-  username: string;
-  displayName: string | null;
-  avatarUrl: string | null;
-}
-
 export interface Post {
   id: string;
   authorId: string;
-  author: PostAuthor;
+  author: UserSummary;
   caption: string | null;
   imageUrl: string;
   likesCount: number;
@@ -48,7 +57,7 @@ export interface Comment {
   id: string;
   postId: string;
   authorId: string;
-  author: PostAuthor;
+  author: UserSummary;
   content: string;
   createdAt: string;
   updatedAt: string;

@@ -1,5 +1,5 @@
 import { ApiClient } from '../client';
-import { PaginatedResult, PaginationParams, User } from '../types';
+import { PaginatedResult, PaginationParams, UserSummary } from '../types';
 
 export function createFollowsResource(client: ApiClient) {
   return {
@@ -20,8 +20,8 @@ export function createFollowsResource(client: ApiClient) {
     followers(
       username: string,
       params: PaginationParams = {},
-    ): Promise<PaginatedResult<User>> {
-      return client.request<PaginatedResult<User>>(
+    ): Promise<PaginatedResult<UserSummary>> {
+      return client.request<PaginatedResult<UserSummary>>(
         `/users/${username}/followers`,
         { query: params, auth: false },
       );
@@ -30,8 +30,8 @@ export function createFollowsResource(client: ApiClient) {
     following(
       username: string,
       params: PaginationParams = {},
-    ): Promise<PaginatedResult<User>> {
-      return client.request<PaginatedResult<User>>(
+    ): Promise<PaginatedResult<UserSummary>> {
+      return client.request<PaginatedResult<UserSummary>>(
         `/users/${username}/following`,
         { query: params, auth: false },
       );

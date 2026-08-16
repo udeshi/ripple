@@ -1,16 +1,21 @@
 import { ApiClient } from '../client';
-import { PaginatedResult, PaginationParams, Post, User } from '../types';
+import {
+  PaginatedResult,
+  PaginationParams,
+  Post,
+  SearchUserResult,
+} from '../types';
 
 export function createSearchResource(client: ApiClient) {
   return {
     users(
       q: string,
       params: PaginationParams = {},
-    ): Promise<PaginatedResult<User>> {
-      return client.request<PaginatedResult<User>>('/search/users', {
-        query: { q, ...params },
-        auth: false,
-      });
+    ): Promise<PaginatedResult<SearchUserResult>> {
+      return client.request<PaginatedResult<SearchUserResult>>(
+        '/search/users',
+        { query: { q, ...params }, auth: false },
+      );
     },
 
     posts(
