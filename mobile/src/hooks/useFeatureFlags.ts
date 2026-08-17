@@ -1,37 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { FeatureFlag } from '@ripple/api-client';
 import { rippleClient } from '../api/client';
 import { getDeviceId } from '../api/deviceId';
 
-interface FeatureFlagsState {
-  loading: boolean;
-  flags: FeatureFlag[];
-}
-
 export function useFeatureFlags() {
-  const [state, setState] = useState<FeatureFlagsState>({
-    loading: true,
-    flags: [],
+  const query = useQuery({
+    queryKey: ['flags'],
+    queryFn: async () => rippleClient.flags.list(await getDeviceId()),
+    staleTime: 5 * 60 * 1000,
   });
 
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      const deviceId = await getDeviceId();
-      const flags = await rippleClient.flags
-        .list(deviceId)
-        .catch(() => [] as FeatureFlag[]);
-      if (!cancelled) setState({ loading: false, flags });
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+  const flags: FeatureFlag[] = query.data ?? [];
   const isEnabled = (key: string) =>
-    state.flags.some((flag) => flag.key === key && flag.enabled);
+    flags.some((flag) => flag.key === key && flag.enabled);
 
-  return { loading: state.loading, isEnabled };
+  return { loading: query.isLoading, isEnabled };
 }
