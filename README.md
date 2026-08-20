@@ -56,7 +56,7 @@ cd mobile
 npx expo start
 ```
 
-See `mobile/README.md` for OTA update setup with EAS.
+Feed, search, post creation, profiles and auth are all built as native screens (`expo-router`). See `mobile/README.md` for structure and OTA update setup with EAS.
 
 ## Features
 
