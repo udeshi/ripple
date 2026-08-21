@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { LikeButton } from "@/components/LikeButton";
@@ -15,8 +16,11 @@ export default function PostPage({
 }) {
   const { id } = use(params);
   const { user } = useAuth();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [comment, setComment] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [caption, setCaption] = useState("");
 
   const postQuery = useQuery({
     queryKey: ["post", id],
@@ -36,6 +40,22 @@ export default function PostPage({
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: (newCaption: string) => rippleClient.posts.update(id, newCaption),
+    onSuccess: () => {
+      setEditing(false);
+      void queryClient.invalidateQueries({ queryKey: ["post", id] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => rippleClient.posts.remove(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["feed"] });
+      router.push("/");
+    },
+  });
+
   if (postQuery.isLoading) {
     return <p className="p-6 text-zinc-500">Loading…</p>;
   }
@@ -44,6 +64,7 @@ export default function PostPage({
   }
 
   const post = postQuery.data;
+  const isOwner = user?.id === post.authorId;
 
   return (
     <main className="mx-auto w-full max-w-xl flex-1 px-4 py-6">
@@ -52,6 +73,27 @@ export default function PostPage({
         <Link href={`/${post.author.username}`} className="text-sm font-medium">
           {post.author.displayName ?? post.author.username}
         </Link>
+        {isOwner && !editing && (
+          <div className="ml-auto flex gap-3 text-sm text-zinc-500">
+            <button
+              type="button"
+              onClick={() => {
+                setCaption(post.caption ?? "");
+                setEditing(true);
+              }}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm("Delete this post?")) deleteMutation.mutate();
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element -- remote Cloudinary URLs */}
       <img
@@ -59,7 +101,35 @@ export default function PostPage({
         alt={post.caption ?? ""}
         className="mt-3 w-full rounded-lg object-cover"
       />
-      {post.caption && <p className="mt-2 text-sm">{post.caption}</p>}
+      {editing ? (
+        <div className="mt-2 flex flex-col gap-2">
+          <textarea
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            rows={3}
+            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => updateMutation.mutate(caption)}
+              disabled={updateMutation.isPending}
+              className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm text-white dark:bg-zinc-50 dark:text-black"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        post.caption && <p className="mt-2 text-sm">{post.caption}</p>
+      )}
       <div className="mt-2 flex items-center gap-4 text-sm text-zinc-500">
         <LikeButton postId={post.id} liked={post.isLikedByMe} count={post.likesCount} />
         <span>{post.commentsCount} comments</span>

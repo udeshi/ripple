@@ -4,6 +4,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { use } from "react";
 import { Avatar } from "@/components/Avatar";
+import { AvatarUploader } from "@/components/AvatarUploader";
 import { FollowButton } from "@/components/FollowButton";
 import { rippleClient } from "@/lib/apiClient";
 import { useAuth } from "@/lib/auth-context";
@@ -43,7 +44,11 @@ export default function ProfilePage({
   return (
     <main className="mx-auto w-full max-w-xl flex-1 px-4 py-6">
       <div className="flex items-center gap-4">
-        <Avatar src={profile.avatarUrl} alt={profile.username} size={64} />
+        {isOwnProfile ? (
+          <AvatarUploader src={profile.avatarUrl} alt={profile.username} size={64} />
+        ) : (
+          <Avatar src={profile.avatarUrl} alt={profile.username} size={64} />
+        )}
         <div className="flex-1">
           <h1 className="text-lg font-semibold">
             {profile.displayName ?? profile.username}
