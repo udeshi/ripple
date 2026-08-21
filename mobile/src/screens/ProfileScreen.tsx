@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { Avatar } from '../components/Avatar';
+import { AvatarUploader } from '../components/AvatarUploader';
 import { FollowButton } from '../components/FollowButton';
 import { rippleClient } from '../api/client';
 import { useAuth } from '../lib/auth-context';
@@ -57,7 +58,11 @@ export function ProfileScreen({ username }: { username: string }) {
       ListHeaderComponent={
         <View style={styles.header}>
           <View style={styles.headerRow}>
-            <Avatar src={profile.avatarUrl} alt={profile.username} size={64} />
+            {isOwnProfile ? (
+              <AvatarUploader src={profile.avatarUrl} alt={profile.username} size={64} />
+            ) : (
+              <Avatar src={profile.avatarUrl} alt={profile.username} size={64} />
+            )}
             <View style={styles.headerInfo}>
               <Text style={styles.name}>
                 {profile.displayName ?? profile.username}
