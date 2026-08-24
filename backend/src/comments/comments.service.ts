@@ -8,6 +8,7 @@ import {
   PaginationQueryDto,
   paginate,
 } from '../common/dto/pagination-query.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 
 const AUTHOR_SELECT = {
@@ -19,7 +20,10 @@ const AUTHOR_SELECT = {
 
 @Injectable()
 export class CommentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(postId: string, authorId: string, dto: CreateCommentDto) {
     return this.prisma.$transaction(async (tx) => {
@@ -36,6 +40,12 @@ export class CommentsService {
       await tx.post.update({
         where: { id: postId },
         data: { commentsCount: { increment: 1 } },
+      });
+      await this.notificationsService.notify(tx, {
+        recipientId: post.authorId,
+        actorId: authorId,
+        type: 'COMMENT',
+        postId,
       });
 
       return comment;

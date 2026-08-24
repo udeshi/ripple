@@ -1,11 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 // Toggling a like touches two tables (Like row + Post.likesCount), so it
 // runs inside an interactive transaction to keep both in sync.
 @Injectable()
 export class LikesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async toggleLike(postId: string, userId: string) {
     return this.prisma.$transaction(async (tx) => {
@@ -31,6 +35,12 @@ export class LikesService {
       await tx.post.update({
         where: { id: postId },
         data: { likesCount: { increment: 1 } },
+      });
+      await this.notificationsService.notify(tx, {
+        recipientId: post.authorId,
+        actorId: userId,
+        type: 'LIKE',
+        postId,
       });
       return { liked: true };
     });

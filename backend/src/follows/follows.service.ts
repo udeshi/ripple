@@ -9,6 +9,7 @@ import {
   PaginationQueryDto,
   paginate,
 } from '../common/dto/pagination-query.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const USER_SELECT = {
   id: true,
@@ -21,7 +22,10 @@ const USER_SELECT = {
 // user), so both run inside a transaction to keep counts consistent.
 @Injectable()
 export class FollowsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async follow(followerId: string, followingUsername: string) {
     const target = await this.prisma.user.findUnique({
@@ -58,6 +62,11 @@ export class FollowsService {
       await tx.user.update({
         where: { id: target.id },
         data: { followersCount: { increment: 1 } },
+      });
+      await this.notificationsService.notify(tx, {
+        recipientId: target.id,
+        actorId: followerId,
+        type: 'FOLLOW',
       });
 
       return { following: true };
