@@ -23,6 +23,9 @@ model User {
   likes         Like[]
   refreshTokens RefreshToken[]
 
+  notifications        Notification[] @relation("Notifications")
+  notificationsCaused  Notification[] @relation("NotificationsCaused")
+
   // Follow graph: this user following others, and others following this user.
   following Follow[] @relation("Following")
   followers Follow[] @relation("Followers")
@@ -58,8 +61,9 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  comments Comment[]
-  likes    Like[]
+  comments      Comment[]
+  likes         Like[]
+  notifications Notification[]
 
   // Denormalized counters, kept in sync inside transactions.
   likesCount    Int @default(0)
@@ -106,6 +110,28 @@ model Follow {
   @@unique([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  recipientId String
+  recipient   User             @relation("Notifications", fields: [recipientId], references: [id], onDelete: Cascade)
+  actorId     String
+  actor       User             @relation("NotificationsCaused", fields: [actorId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  postId      String?
+  post        Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  read        Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  @@index([recipientId, createdAt])
+  @@index([recipientId, read])
 }
 
 model FeatureFlag {
