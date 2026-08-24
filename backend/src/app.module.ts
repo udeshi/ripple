@@ -14,6 +14,7 @@ import { validate } from './config/env.validation';
 import { FlagsModule } from './flags/flags.module';
 import { FollowsModule } from './follows/follows.module';
 import { LikesModule } from './likes/likes.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { PostsModule } from './posts/posts.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SearchModule } from './search/search.module';
@@ -38,6 +39,7 @@ import { UsersModule } from './users/users.module';
     FollowsModule,
     SearchModule,
     FlagsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [
