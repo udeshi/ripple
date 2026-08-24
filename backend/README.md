@@ -35,3 +35,4 @@ npm run test:e2e
 - `search` — user and post search
 - `uploads` — storage abstraction (Cloudinary)
 - `flags` — feature flags with deterministic per-user/device rollout percentages, used to gate OTA-delivered mobile features
+- `notifications` — likes, comments and follows create notifications transactionally with the event that caused them
