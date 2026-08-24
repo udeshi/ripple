@@ -3,6 +3,7 @@ import { createAuthResource } from './resources/auth';
 import { createCommentsResource } from './resources/comments';
 import { createFlagsResource } from './resources/flags';
 import { createFollowsResource } from './resources/follows';
+import { createNotificationsResource } from './resources/notifications';
 import { createPostsResource } from './resources/posts';
 import { createSearchResource } from './resources/search';
 import { createUsersResource } from './resources/users';
@@ -27,6 +28,7 @@ export function createRippleClient(config: ApiClientConfig) {
     follows: createFollowsResource(client),
     search: createSearchResource(client),
     flags: createFlagsResource(client),
+    notifications: createNotificationsResource(client),
   };
 }
 

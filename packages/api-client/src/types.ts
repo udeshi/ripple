@@ -63,6 +63,17 @@ export interface Comment {
   updatedAt: string;
 }
 
+export type NotificationType = 'LIKE' | 'COMMENT' | 'FOLLOW';
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  actor: UserSummary;
+  postId: string | null;
+  read: boolean;
+  createdAt: string;
+}
+
 export interface PaginatedResult<T> {
   items: T[];
   meta: {
