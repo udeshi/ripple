@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { useFeatureFlags } from "@/lib/useFeatureFlags";
+import { NotificationsLink } from "./NotificationsLink";
 
 export function Nav() {
   const { user, loading, logout } = useAuth();
@@ -20,6 +21,7 @@ export function Nav() {
           {!loading &&
             (user ? (
               <>
+                <NotificationsLink />
                 <Link href="/posts/new">New post</Link>
                 <Link href={`/${user.username}`}>{user.username}</Link>
                 <button onClick={() => void logout()}>Log out</button>
