@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   PaginationQueryDto,
@@ -77,14 +78,31 @@ export class CommentsService {
       if (comment.authorId !== userId) {
         throw new ForbiddenException('You do not own this comment');
       }
-
-      await tx.comment.delete({ where: { id: commentId } });
-      await tx.post.update({
-        where: { id: comment.postId },
-        data: { commentsCount: { decrement: 1 } },
-      });
-
-      return { success: true };
+      return this.deleteComment(tx, comment);
     });
+  }
+
+  async adminRemove(commentId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const comment = await tx.comment.findUnique({
+        where: { id: commentId },
+      });
+      if (!comment) {
+        throw new NotFoundException('Comment not found');
+      }
+      return this.deleteComment(tx, comment);
+    });
+  }
+
+  private async deleteComment(
+    tx: Prisma.TransactionClient,
+    comment: { id: string; postId: string },
+  ) {
+    await tx.comment.delete({ where: { id: comment.id } });
+    await tx.post.update({
+      where: { id: comment.postId },
+      data: { commentsCount: { decrement: 1 } },
+    });
+    return { success: true };
   }
 }

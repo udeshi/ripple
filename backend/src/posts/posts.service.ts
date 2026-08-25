@@ -137,11 +137,26 @@ export class PostsService {
 
   async remove(id: string, authorId: string) {
     const post = await this.assertOwner(id, authorId);
+    return this.deletePost(post);
+  }
 
+  async adminRemove(id: string) {
+    const post = await this.prisma.post.findUnique({ where: { id } });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    return this.deletePost(post);
+  }
+
+  private async deletePost(post: {
+    id: string;
+    authorId: string;
+    imageUrl: string;
+  }) {
     await this.prisma.$transaction([
-      this.prisma.post.delete({ where: { id } }),
+      this.prisma.post.delete({ where: { id: post.id } }),
       this.prisma.user.update({
-        where: { id: authorId },
+        where: { id: post.authorId },
         data: { postsCount: { decrement: 1 } },
       }),
     ]);
