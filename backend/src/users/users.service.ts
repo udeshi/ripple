@@ -22,6 +22,7 @@ const PUBLIC_PROFILE_SELECT = {
 const ME_SELECT = {
   ...PUBLIC_PROFILE_SELECT,
   email: true,
+  role: true,
 } as const;
 
 @Injectable()
@@ -111,6 +112,18 @@ export class UsersService {
       data: { avatarUrl },
       select: PUBLIC_PROFILE_SELECT,
     });
+  }
+
+  async setBanned(username: string, banned: boolean) {
+    const user = await this.prisma.user.findUnique({ where: { username } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { bannedAt: banned ? new Date() : null },
+    });
+    return { success: true };
   }
 
   async validatePassword(email: string, password: string) {

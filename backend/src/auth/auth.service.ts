@@ -39,6 +39,9 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    if (user.bannedAt) {
+      throw new UnauthorizedException('This account has been suspended');
+    }
     const tokens = await this.issueTokenPair(user.id, user.username, context);
     return { user: this.toPublicUser(user), ...tokens };
   }
