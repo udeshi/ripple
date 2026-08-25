@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -15,6 +20,8 @@ model User {
   displayName  String?
   bio          String?
   avatarUrl    String?
+  role         UserRole @default(USER)
+  bannedAt     DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -22,6 +29,7 @@ model User {
   comments      Comment[]
   likes         Like[]
   refreshTokens RefreshToken[]
+  reports       Report[]
 
   notifications        Notification[] @relation("Notifications")
   notificationsCaused  Notification[] @relation("NotificationsCaused")
@@ -132,6 +140,41 @@ model Notification {
 
   @@index([recipientId, createdAt])
   @@index([recipientId, read])
+}
+
+enum ReportTargetType {
+  POST
+  COMMENT
+  USER
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  NUDITY
+  HATE_SPEECH
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+}
+
+model Report {
+  id         String           @id @default(uuid())
+  reporterId String
+  reporter   User             @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType ReportTargetType
+  targetId   String
+  reason     ReportReason
+  details    String?
+  status     ReportStatus     @default(PENDING)
+  createdAt  DateTime         @default(now())
+  resolvedAt DateTime?
+
+  @@index([status, createdAt])
 }
 
 model FeatureFlag {
