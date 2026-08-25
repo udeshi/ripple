@@ -23,6 +23,7 @@ export function Nav() {
               <>
                 <NotificationsLink />
                 <Link href="/posts/new">New post</Link>
+                {user.role === "ADMIN" && <Link href="/admin">Admin</Link>}
                 <Link href={`/${user.username}`}>{user.username}</Link>
                 <button onClick={() => void logout()}>Log out</button>
               </>

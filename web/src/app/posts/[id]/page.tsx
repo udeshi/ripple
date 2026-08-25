@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { LikeButton } from "@/components/LikeButton";
+import { ReportButton } from "@/components/ReportButton";
 import { rippleClient } from "@/lib/apiClient";
 import { useAuth } from "@/lib/auth-context";
 
@@ -92,6 +93,11 @@ export default function PostPage({
             >
               Delete
             </button>
+          </div>
+        )}
+        {user && !isOwner && (
+          <div className="ml-auto">
+            <ReportButton targetType="POST" targetId={post.id} />
           </div>
         )}
       </div>

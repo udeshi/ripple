@@ -6,6 +6,7 @@ import { use } from "react";
 import { Avatar } from "@/components/Avatar";
 import { AvatarUploader } from "@/components/AvatarUploader";
 import { FollowButton } from "@/components/FollowButton";
+import { ReportButton } from "@/components/ReportButton";
 import { rippleClient } from "@/lib/apiClient";
 import { useAuth } from "@/lib/auth-context";
 
@@ -56,7 +57,10 @@ export default function ProfilePage({
           <p className="text-sm text-zinc-500">@{profile.username}</p>
         </div>
         {!isOwnProfile && currentUser && (
-          <FollowButton username={username} initialFollowing={profile.isFollowedByMe} />
+          <div className="flex items-center gap-3">
+            <FollowButton username={username} initialFollowing={profile.isFollowedByMe} />
+            <ReportButton targetType="USER" targetId={profile.id} />
+          </div>
         )}
       </div>
       {profile.bio && <p className="mt-3 text-sm">{profile.bio}</p>}
