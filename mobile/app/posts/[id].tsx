@@ -16,6 +16,7 @@ import { Avatar } from '../../src/components/Avatar';
 import { LikeButton } from '../../src/components/LikeButton';
 import { rippleClient } from '../../src/api/client';
 import { useAuth } from '../../src/lib/auth-context';
+import { reportViaAlert } from '../../src/lib/report';
 
 export default function PostScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -111,6 +112,11 @@ export default function PostScreen() {
                   <Text style={styles.ownerAction}>Delete</Text>
                 </Pressable>
               </View>
+            )}
+            {user && !isOwner && (
+              <Pressable onPress={() => reportViaAlert('POST', post.id)}>
+                <Text style={styles.ownerAction}>Report</Text>
+              </Pressable>
             )}
           </View>
           <Image source={{ uri: post.imageUrl }} style={styles.image} />

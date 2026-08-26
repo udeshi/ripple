@@ -14,6 +14,7 @@ import { AvatarUploader } from '../components/AvatarUploader';
 import { FollowButton } from '../components/FollowButton';
 import { rippleClient } from '../api/client';
 import { useAuth } from '../lib/auth-context';
+import { reportViaAlert } from '../lib/report';
 
 export function ProfileScreen({ username }: { username: string }) {
   const { user: currentUser } = useAuth();
@@ -70,10 +71,15 @@ export function ProfileScreen({ username }: { username: string }) {
               <Text style={styles.muted}>@{profile.username}</Text>
             </View>
             {!isOwnProfile && currentUser && (
-              <FollowButton
-                username={username}
-                initialFollowing={profile.isFollowedByMe}
-              />
+              <View style={styles.actions}>
+                <FollowButton
+                  username={username}
+                  initialFollowing={profile.isFollowedByMe}
+                />
+                <Pressable onPress={() => reportViaAlert('USER', profile.id)}>
+                  <Text style={styles.muted}>Report</Text>
+                </Pressable>
+              </View>
             )}
           </View>
           {profile.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
@@ -116,6 +122,7 @@ const styles = StyleSheet.create({
   header: { padding: 16 },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   headerInfo: { flex: 1 },
+  actions: { alignItems: 'flex-end', gap: 6 },
   name: { fontSize: 18, fontWeight: '600' },
   bio: { fontSize: 14, marginTop: 12 },
   stats: { flexDirection: 'row', gap: 20, marginTop: 16 },
