@@ -36,3 +36,7 @@ npm run test:e2e
 - `uploads` — storage abstraction (Cloudinary)
 - `flags` — feature flags with deterministic per-user/device rollout percentages, used to gate OTA-delivered mobile features
 - `notifications` — likes, comments and follows create notifications transactionally with the event that caused them
+- `reports` — any authenticated user can report a post, comment, or user
+- `admin` — role-gated (`RolesGuard` + `@Roles('ADMIN')`): review/resolve reports, ban/unban users, delete any post or comment
+
+Set `ADMIN_EMAIL` before running `npm run db:seed` to promote that user to `ADMIN`.

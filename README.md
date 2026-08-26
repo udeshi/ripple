@@ -68,3 +68,4 @@ Feed, search, post creation, profiles and auth are all built as native screens (
 - User and post search
 - Server-evaluated feature flags with deterministic rollout percentages, so a feature can ship in an OTA update but stay dark until enabled gradually
 - In-app notifications for likes, comments and follows, with an unread badge on web and mobile
+- Reporting for posts, comments and users, with an admin dashboard (web) to review reports, ban users, and remove content
