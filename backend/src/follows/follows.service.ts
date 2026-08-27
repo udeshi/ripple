@@ -18,8 +18,6 @@ const USER_SELECT = {
   avatarUrl: true,
 } as const;
 
-// Follow/unfollow touch three rows (the Follow edge plus a counter on each
-// user), so both run inside a transaction to keep counts consistent.
 @Injectable()
 export class FollowsService {
   constructor(

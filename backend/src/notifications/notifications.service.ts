@@ -17,8 +17,6 @@ const ACTOR_SELECT = {
 export class NotificationsService {
   constructor(private prisma: PrismaService) {}
 
-  // Called from inside another service's transaction (like/comment/follow),
-  // so the notification never exists without the event that caused it.
   async notify(
     tx: Prisma.TransactionClient,
     params: {

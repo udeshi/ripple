@@ -61,7 +61,15 @@ export class UsersController {
     if (!file) {
       throw new BadRequestException('file is required');
     }
-    const { url } = await this.storageService.uploadImage(file, 'avatars');
-    return this.usersService.updateAvatar(user.id, url);
+    const { url, publicId } = await this.storageService.uploadImage(
+      file,
+      'avatars',
+    );
+    const { updated, previousAvatarPublicId } =
+      await this.usersService.updateAvatar(user.id, url, publicId);
+    if (previousAvatarPublicId) {
+      await this.storageService.deleteImage(previousAvatarPublicId);
+    }
+    return updated;
   }
 }

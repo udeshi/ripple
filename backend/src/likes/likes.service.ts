@@ -2,8 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
-// Toggling a like touches two tables (Like row + Post.likesCount), so it
-// runs inside an interactive transaction to keep both in sync.
 @Injectable()
 export class LikesService {
   constructor(

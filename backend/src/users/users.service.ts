@@ -106,12 +106,20 @@ export class UsersService {
     });
   }
 
-  async updateAvatar(userId: string, avatarUrl: string) {
-    return this.prisma.user.update({
+  async updateAvatar(userId: string, avatarUrl: string, publicId: string) {
+    const previous = await this.prisma.user.findUnique({
       where: { id: userId },
-      data: { avatarUrl },
+      select: { avatarPublicId: true },
+    });
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl, avatarPublicId: publicId },
       select: PUBLIC_PROFILE_SELECT,
     });
+    return {
+      updated,
+      previousAvatarPublicId: previous?.avatarPublicId ?? null,
+    };
   }
 
   async setBanned(username: string, banned: boolean) {

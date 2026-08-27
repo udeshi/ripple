@@ -29,9 +29,6 @@ type PostWithAuthor = Prisma.PostGetPayload<{
 
 type PostWithAuthorAndLikes = PostWithAuthor & { likes: { id: string }[] };
 
-// Writes that touch more than one table (create/delete here; likes and
-// comments counts live in their own services) go through $transaction so
-// the post row and its counters never drift apart.
 @Injectable()
 export class PostsService {
   constructor(
@@ -40,11 +37,19 @@ export class PostsService {
   ) {}
 
   async create(authorId: string, dto: CreatePostDto, file: UploadedFileData) {
-    const { url } = await this.storageService.uploadImage(file, 'posts');
+    const { url, publicId } = await this.storageService.uploadImage(
+      file,
+      'posts',
+    );
 
     const [post] = await this.prisma.$transaction([
       this.prisma.post.create({
-        data: { authorId, caption: dto.caption, imageUrl: url },
+        data: {
+          authorId,
+          caption: dto.caption,
+          imageUrl: url,
+          imagePublicId: publicId,
+        },
         include: { author: { select: AUTHOR_SELECT } },
       }),
       this.prisma.user.update({
@@ -125,13 +130,30 @@ export class PostsService {
     return this.mapPost(post, currentUserId);
   }
 
-  async update(id: string, authorId: string, dto: UpdatePostDto) {
-    await this.assertOwner(id, authorId);
+  async update(
+    id: string,
+    authorId: string,
+    dto: UpdatePostDto,
+    file?: UploadedFileData,
+  ) {
+    const currentPost = await this.assertOwner(id, authorId);
+    const uploaded = file
+      ? await this.storageService.uploadImage(file, 'posts')
+      : undefined;
     const post = await this.prisma.post.update({
       where: { id },
-      data: { caption: dto.caption },
+      data: {
+        caption: dto.caption,
+        ...(uploaded && {
+          imageUrl: uploaded.url,
+          imagePublicId: uploaded.publicId,
+        }),
+      },
       include: { author: { select: AUTHOR_SELECT } },
     });
+    if (uploaded && currentPost.imagePublicId) {
+      await this.storageService.deleteImage(currentPost.imagePublicId);
+    }
     return this.mapPost(post, authorId);
   }
 
@@ -151,7 +173,7 @@ export class PostsService {
   private async deletePost(post: {
     id: string;
     authorId: string;
-    imageUrl: string;
+    imagePublicId: string | null;
   }) {
     await this.prisma.$transaction([
       this.prisma.post.delete({ where: { id: post.id } }),
@@ -161,7 +183,9 @@ export class PostsService {
       }),
     ]);
 
-    await this.storageService.deleteImage(post.imageUrl);
+    if (post.imagePublicId) {
+      await this.storageService.deleteImage(post.imagePublicId);
+    }
     return { success: true };
   }
 

@@ -13,32 +13,32 @@ enum UserRole {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  username     String   @unique
-  passwordHash String
-  displayName  String?
-  bio          String?
-  avatarUrl    String?
-  role         UserRole @default(USER)
-  bannedAt     DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String    @id @default(uuid())
+  email          String    @unique
+  username       String    @unique
+  passwordHash   String
+  displayName    String?
+  bio            String?
+  avatarUrl      String?
+  avatarPublicId String?
+  role           UserRole  @default(USER)
+  bannedAt       DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  posts         Post[]
-  comments      Comment[]
-  likes         Like[]
-  refreshTokens RefreshToken[]
-  reports       Report[]
+  posts               Post[]
+  comments            Comment[]
+  likes               Like[]
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  reports             Report[]
 
-  notifications        Notification[] @relation("Notifications")
-  notificationsCaused  Notification[] @relation("NotificationsCaused")
+  notifications       Notification[] @relation("Notifications")
+  notificationsCaused Notification[] @relation("NotificationsCaused")
 
-  // Follow graph: this user following others, and others following this user.
   following Follow[] @relation("Following")
   followers Follow[] @relation("Followers")
 
-  // Denormalized counters, kept in sync inside transactions (see FollowsService/PostsService).
   followersCount Int @default(0)
   followingCount Int @default(0)
   postsCount     Int @default(0)
@@ -60,20 +60,32 @@ model RefreshToken {
   @@index([userId])
 }
 
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  tokenHash String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
 model Post {
-  id        String   @id @default(uuid())
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  caption   String?
-  imageUrl  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(uuid())
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  caption       String?
+  imageUrl      String
+  imagePublicId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   comments      Comment[]
   likes         Like[]
   notifications Notification[]
 
-  // Denormalized counters, kept in sync inside transactions.
   likesCount    Int @default(0)
   commentsCount Int @default(0)
 

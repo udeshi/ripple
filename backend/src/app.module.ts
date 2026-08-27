@@ -6,6 +6,7 @@ import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { ChatModule } from './chat/chat.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
@@ -44,13 +45,12 @@ import { UsersModule } from './users/users.module';
     NotificationsModule,
     ReportsModule,
     AdminModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    // Auth guard runs globally; individual routes opt out with @Public().
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    // Basic rate limiting on top of auth, per NestJS Throttler defaults.
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },

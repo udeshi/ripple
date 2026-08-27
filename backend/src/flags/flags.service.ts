@@ -8,8 +8,6 @@ interface FlagRow {
   rolloutPercentage: number;
 }
 
-// Deterministic 0-99 bucket for a (subject, flag) pair, so the same
-// user/device always lands on the same side of a rollout percentage.
 function bucketOf(subjectId: string, flagKey: string): number {
   const hash = createHash('sha256').update(`${subjectId}:${flagKey}`).digest();
   return hash.readUInt32BE(0) % 100;

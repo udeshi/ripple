@@ -15,8 +15,6 @@ type RequestWithUpload = FastifyRequest & {
   uploadedImage?: UploadedFileData;
 };
 
-// Parses multipart uploads via @fastify/multipart and attaches the file to
-// `request.uploadedImage`, read by the @UploadedImage() decorator.
 @Injectable()
 export class FileUploadInterceptor implements NestInterceptor {
   async intercept(
@@ -29,34 +27,31 @@ export class FileUploadInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    const file = await request.file({
-      limits: { fileSize: MAX_FILE_SIZE_BYTES },
-    });
-
-    if (!file) {
-      return next.handle();
-    }
-
-    if (file.file.truncated) {
-      throw new PayloadTooLargeException(
-        `File exceeds the ${MAX_FILE_SIZE_BYTES / (1024 * 1024)}MB limit`,
-      );
-    }
-
-    const buffer = await file.toBuffer();
-    request.uploadedImage = {
-      buffer,
-      originalname: file.filename,
-      mimetype: file.mimetype,
-      size: buffer.length,
-    };
-
     const body: Record<string, unknown> = {};
-    for (const [key, entry] of Object.entries(file.fields ?? {})) {
-      if (entry && !Array.isArray(entry) && 'value' in entry) {
-        body[key] = entry.value;
+    let uploadedFile: UploadedFileData | undefined;
+
+    for await (const part of request.parts({
+      limits: { fileSize: MAX_FILE_SIZE_BYTES },
+    })) {
+      if (part.type === 'file') {
+        if (part.file.truncated) {
+          throw new PayloadTooLargeException(
+            `File exceeds ${MAX_FILE_SIZE_BYTES / (1024 * 1024)}MB`,
+          );
+        }
+        const buffer = await part.toBuffer();
+        uploadedFile = {
+          buffer,
+          originalname: part.filename,
+          mimetype: part.mimetype,
+          size: buffer.length,
+        };
+      } else {
+        body[part.fieldname] = part.value;
       }
     }
+
+    if (uploadedFile) request.uploadedImage = uploadedFile;
     request.body = body;
 
     return next.handle();

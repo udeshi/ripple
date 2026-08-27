@@ -69,12 +69,14 @@ export class PostsController {
   }
 
   @Patch(':id')
+  @UseInterceptors(FileUploadInterceptor)
   update(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: UpdatePostDto,
+    @UploadedImage() file?: UploadedFileData,
   ) {
-    return this.postsService.update(id, user.id, dto);
+    return this.postsService.update(id, user.id, dto, file);
   }
 
   @Delete(':id')

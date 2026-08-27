@@ -1,5 +1,6 @@
 import { plainToInstance } from 'class-transformer';
 import {
+  IsIn,
   IsNotEmpty,
   IsNumberString,
   IsOptional,
@@ -11,6 +12,14 @@ class EnvironmentVariables {
   @IsOptional()
   @IsNumberString()
   PORT?: string;
+
+  @IsOptional()
+  @IsString()
+  API_PREFIX?: string;
+
+  @IsOptional()
+  @IsString()
+  WEB_ORIGIN?: string;
 
   @IsNotEmpty()
   @IsString()
@@ -31,6 +40,42 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   JWT_REFRESH_EXPIRES_IN?: string;
+
+  @IsOptional()
+  @IsIn(['local', 'cloudinary'])
+  STORAGE_PROVIDER?: 'local' | 'cloudinary';
+
+  @IsOptional()
+  @IsIn(['console', 'smtp'])
+  MAIL_PROVIDER?: 'console' | 'smtp';
+
+  @IsOptional()
+  @IsString()
+  MAIL_FROM?: string;
+
+  @IsOptional()
+  @IsString()
+  SMTP_HOST?: string;
+
+  @IsOptional()
+  @IsNumberString()
+  SMTP_PORT?: string;
+
+  @IsOptional()
+  @IsString()
+  SMTP_USER?: string;
+
+  @IsOptional()
+  @IsString()
+  SMTP_PASS?: string;
+
+  @IsOptional()
+  @IsString()
+  STREAM_API_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  STREAM_API_SECRET?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

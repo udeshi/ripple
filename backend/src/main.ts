@@ -16,10 +16,12 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
   const configService = app.get(ConfigService<AppConfig, true>);
+  const webOrigin = configService.get('webOrigin', { infer: true });
 
   await app.register(fastifyCors, {
-    origin: process.env.WEB_ORIGIN ?? 'http://localhost:3000',
+    origin: webOrigin,
     credentials: true,
+    methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   });
   await app.register(fastifyMultipart);
 
@@ -31,7 +33,7 @@ async function bootstrap() {
     }),
   );
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(configService.get('apiPrefix', { infer: true }));
 
   const port = configService.get('port', { infer: true });
   await app.listen(port, '0.0.0.0');

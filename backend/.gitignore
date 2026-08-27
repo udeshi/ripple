@@ -6,3 +6,6 @@ coverage
 .env
 
 /generated/prisma
+
+# Locally-stored uploads (STORAGE_PROVIDER=local) — user content, not source.
+/uploads/

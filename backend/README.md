@@ -38,5 +38,6 @@ npm run test:e2e
 - `notifications` — likes, comments and follows create notifications transactionally with the event that caused them
 - `reports` — any authenticated user can report a post, comment, or user
 - `admin` — role-gated (`RolesGuard` + `@Roles('ADMIN')`): review/resolve reports, ban/unban users, delete any post or comment
+- `chat` — issues Stream Chat (getstream.io) tokens; clients connect and create 1:1 channels directly against Stream once they have one. Set `STREAM_API_KEY`/`STREAM_API_SECRET` (free tier) or the endpoint returns a clean 503
 
 Set `ADMIN_EMAIL` before running `npm run db:seed` to promote that user to `ADMIN`.
