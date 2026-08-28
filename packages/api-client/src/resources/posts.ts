@@ -11,12 +11,19 @@ export interface CreatePostInput {
   image: Blob | UploadableFile;
 }
 
+export interface UpdatePostInput {
+  caption: string;
+  image?: Blob | UploadableFile;
+}
+
 export function createPostsResource(client: ApiClient) {
   return {
     feed(params: PaginationParams = {}): Promise<PaginatedResult<Post>> {
+      // Auth is optional server-side (OptionalJwtAuthGuard), but we still
+      // want to send the token when we have one so isLikedByMe reflects
+      // the current user instead of always coming back false.
       return client.request<PaginatedResult<Post>>('/posts', {
         query: params,
-        auth: false,
       });
     },
 
@@ -26,12 +33,12 @@ export function createPostsResource(client: ApiClient) {
     ): Promise<PaginatedResult<Post>> {
       return client.request<PaginatedResult<Post>>(
         `/posts/user/${username}`,
-        { query: params, auth: false },
+        { query: params },
       );
     },
 
     get(id: string): Promise<Post> {
-      return client.request<Post>(`/posts/${id}`, { auth: false });
+      return client.request<Post>(`/posts/${id}`);
     },
 
     create(input: CreatePostInput): Promise<Post> {
@@ -41,10 +48,19 @@ export function createPostsResource(client: ApiClient) {
       return client.request<Post>('/posts', { method: 'POST', formData });
     },
 
-    update(id: string, caption: string): Promise<Post> {
+    update(id: string, input: UpdatePostInput): Promise<Post> {
+      if (input.image) {
+        const formData = new FormData();
+        formData.append('caption', input.caption);
+        formData.append('image', input.image as unknown as Blob);
+        return client.request<Post>(`/posts/${id}`, {
+          method: 'PATCH',
+          formData,
+        });
+      }
       return client.request<Post>(`/posts/${id}`, {
         method: 'PATCH',
-        body: { caption },
+        body: { caption: input.caption },
       });
     },
 

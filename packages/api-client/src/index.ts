@@ -1,6 +1,7 @@
 import { ApiClient, ApiClientConfig } from './client';
 import { createAdminResource } from './resources/admin';
 import { createAuthResource } from './resources/auth';
+import { createChatResource } from './resources/chat';
 import { createCommentsResource } from './resources/comments';
 import { createFlagsResource } from './resources/flags';
 import { createFollowsResource } from './resources/follows';
@@ -14,6 +15,7 @@ import { AuthResponse } from './types';
 export * from './types';
 export { ApiClient, ApiError } from './client';
 export type { ApiClientConfig, TokenStore } from './client';
+export { dedupeById } from './utils';
 
 export function createRippleClient(config: ApiClientConfig) {
   const client = new ApiClient(config);
@@ -33,6 +35,7 @@ export function createRippleClient(config: ApiClientConfig) {
     notifications: createNotificationsResource(client),
     reports: createReportsResource(client),
     admin: createAdminResource(client),
+    chat: createChatResource(client),
   };
 }
 

@@ -44,5 +44,24 @@ export function createAuthResource(
         auth: false,
       });
     },
+
+    async forgotPassword(email: string): Promise<{ message: string }> {
+      return client.request<{ message: string }>('/auth/forgot-password', {
+        method: 'POST',
+        body: { email },
+        auth: false,
+      });
+    },
+
+    async resetPassword(
+      token: string,
+      password: string,
+    ): Promise<{ success: boolean }> {
+      return client.request<{ success: boolean }>('/auth/reset-password', {
+        method: 'POST',
+        body: { token, password },
+        auth: false,
+      });
+    },
   };
 }

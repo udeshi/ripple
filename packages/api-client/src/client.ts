@@ -106,8 +106,6 @@ export class ApiClient {
     return envelope.data;
   }
 
-  // Refresh requests can race (several 401s at once); this collapses them
-  // into a single in-flight refresh instead of rotating the token twice.
   private async refreshAccessToken(): Promise<string | null> {
     if (this.refreshing) return this.refreshing;
 

@@ -13,9 +13,9 @@ export function createUsersResource(client: ApiClient) {
     },
 
     getProfile(username: string): Promise<PublicProfile> {
-      return client.request<PublicProfile>(`/users/${username}`, {
-        auth: false,
-      });
+      // Auth is optional server-side (OptionalJwtAuthGuard), but send the
+      // token when we have one so isFollowedByMe reflects the current user.
+      return client.request<PublicProfile>(`/users/${username}`);
     },
 
     updateProfile(input: UpdateProfileInput): Promise<Profile> {
@@ -27,9 +27,6 @@ export function createUsersResource(client: ApiClient) {
 
     uploadAvatar(file: Blob | UploadableFile): Promise<Profile> {
       const formData = new FormData();
-      // React Native's FormData accepts {uri, name, type} where the DOM
-      // lib expects Blob; both runtimes' actual implementations handle it,
-      // this cast just bridges the two type definitions.
       formData.append('file', file as unknown as Blob);
       return client.request<Profile>('/users/me/avatar', {
         method: 'POST',
