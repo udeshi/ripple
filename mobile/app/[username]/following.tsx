@@ -1,8 +1,10 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { dedupeById } from '@ripple/api-client';
 import { useLocalSearchParams } from 'expo-router';
 import { FlatList, StyleSheet, Text } from 'react-native';
 import { UserListItem } from '../../src/components/UserListItem';
 import { rippleClient } from '../../src/api/client';
+import { colors, spacing } from '../../src/theme';
 
 export default function FollowingScreen() {
   const { username } = useLocalSearchParams<{ username: string }>();
@@ -16,10 +18,11 @@ export default function FollowingScreen() {
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
   });
 
-  const users = query.data?.pages.flatMap((page) => page.items) ?? [];
+  const users = dedupeById(query.data?.pages.flatMap((page) => page.items) ?? []);
 
   return (
     <FlatList
+      style={styles.list}
       data={users}
       keyExtractor={(item) => item.id}
       contentContainerStyle={styles.content}
@@ -37,6 +40,7 @@ export default function FollowingScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 16 },
-  empty: { color: '#71717a' },
+  list: { backgroundColor: colors.background },
+  content: { padding: spacing.md, flexGrow: 1 },
+  empty: { color: colors.muted, marginTop: spacing.xl, textAlign: 'center' },
 });

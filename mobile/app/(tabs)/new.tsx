@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { ApiError } from '@ripple/api-client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -12,7 +13,9 @@ import {
   View,
 } from 'react-native';
 import { rippleClient } from '../../src/api/client';
+import { toUploadableFile } from '../../src/api/uploadableFile';
 import { useAuth } from '../../src/lib/auth-context';
+import { colors, radii, spacing } from '../../src/theme';
 
 export default function NewPostScreen() {
   const { user } = useAuth();
@@ -27,20 +30,21 @@ export default function NewPostScreen() {
       if (!image) throw new Error('Choose an image first');
       return rippleClient.posts.create({
         caption: caption || undefined,
-        image: {
-          uri: image.uri,
-          name: image.fileName ?? 'photo.jpg',
-          type: image.mimeType ?? 'image/jpeg',
-        },
+        image: toUploadableFile(image.uri),
       });
     },
     onSuccess: (post) => {
       void queryClient.invalidateQueries({ queryKey: ['feed'] });
+      if (user) {
+        void queryClient.invalidateQueries({ queryKey: ['profile', user.username] });
+        void queryClient.invalidateQueries({ queryKey: ['userPosts', user.username] });
+      }
       setCaption('');
       setImage(null);
       router.push(`/posts/${post.id}`);
     },
     onError: (err) => {
+      if (!(err instanceof ApiError)) console.error('Post creation failed:', err);
       setError(err instanceof ApiError ? err.message : 'Something went wrong');
     },
   });
@@ -54,6 +58,10 @@ export default function NewPostScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 0.8,
+      // iOS Photos assets are often HEIC, which browsers can't render — ask
+      // for a broadly-compatible (JPEG) representation instead.
+      preferredAssetRepresentationMode:
+        ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
     });
     if (!result.canceled) setImage(result.assets[0]);
   }
@@ -72,11 +80,15 @@ export default function NewPostScreen() {
         {image ? (
           <Image source={{ uri: image.uri }} style={styles.preview} />
         ) : (
-          <Text style={styles.pickerText}>Choose an image</Text>
+          <View style={styles.pickerEmpty}>
+            <Ionicons name="image-outline" size={32} color={colors.muted} />
+            <Text style={styles.pickerText}>Choose an image</Text>
+          </View>
         )}
       </Pressable>
       <TextInput
         placeholder="Write a caption…"
+        placeholderTextColor={colors.muted}
         value={caption}
         onChangeText={setCaption}
         style={styles.input}
@@ -89,7 +101,7 @@ export default function NewPostScreen() {
           mutation.mutate();
         }}
         disabled={mutation.isPending || !image}
-        style={styles.submit}
+        style={[styles.submit, (mutation.isPending || !image) && styles.submitDisabled]}
       >
         <Text style={styles.submitText}>
           {mutation.isPending ? 'Posting…' : 'Post'}
@@ -100,34 +112,39 @@ export default function NewPostScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 12 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  muted: { color: '#71717a' },
+  container: { flex: 1, padding: spacing.lg, gap: spacing.md, backgroundColor: colors.background },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+  muted: { color: colors.muted },
   picker: {
     aspectRatio: 1,
     borderWidth: 1,
-    borderColor: '#d4d4d8',
-    borderRadius: 8,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  pickerText: { color: '#71717a' },
+  pickerEmpty: { alignItems: 'center', gap: spacing.sm },
+  pickerText: { color: colors.muted },
   preview: { width: '100%', height: '100%' },
   input: {
     borderWidth: 1,
-    borderColor: '#d4d4d8',
-    borderRadius: 8,
-    padding: 12,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    color: colors.foreground,
+    padding: spacing.md,
     minHeight: 80,
     textAlignVertical: 'top',
   },
-  error: { color: '#e11d48', fontSize: 14 },
+  error: { color: colors.danger, fontSize: 14 },
   submit: {
-    backgroundColor: '#18181b',
-    borderRadius: 8,
-    paddingVertical: 12,
+    backgroundColor: colors.accent,
+    borderRadius: radii.pill,
+    paddingVertical: spacing.md,
     alignItems: 'center',
   },
-  submitText: { color: 'white', fontWeight: '600' },
+  submitDisabled: { opacity: 0.5 },
+  submitText: { color: '#071018', fontWeight: '700' },
 });

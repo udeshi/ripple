@@ -1,7 +1,10 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { ActivityIndicator, FlatList, StyleSheet, Text } from 'react-native';
+import { dedupeById } from '@ripple/api-client';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { PostCard } from '../../src/components/PostCard';
 import { rippleClient } from '../../src/api/client';
+import { colors, spacing } from '../../src/theme';
 
 export default function FeedScreen() {
   const query = useInfiniteQuery({
@@ -13,21 +16,30 @@ export default function FeedScreen() {
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
   });
 
-  const posts = query.data?.pages.flatMap((page) => page.items) ?? [];
+  const posts = dedupeById(query.data?.pages.flatMap((page) => page.items) ?? []);
 
   if (query.isLoading) {
-    return <ActivityIndicator style={styles.center} />;
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator color={colors.accent} />
+      </View>
+    );
   }
 
   return (
     <FlatList
+      style={styles.list}
+      contentContainerStyle={styles.content}
       data={posts}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => <PostCard post={item} />}
       ListEmptyComponent={
-        <Text style={styles.empty}>
-          No posts yet. Be the first to share something.
-        </Text>
+        <View style={styles.empty}>
+          <Ionicons name="images-outline" size={32} color={colors.muted} />
+          <Text style={styles.emptyText}>
+            No posts yet. Be the first to share something.
+          </Text>
+        </View>
       }
       onEndReached={() => {
         if (query.hasNextPage) void query.fetchNextPage();
@@ -37,6 +49,9 @@ export default function FeedScreen() {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1 },
-  empty: { textAlign: 'center', color: '#71717a', marginTop: 40 },
+  list: { backgroundColor: colors.background },
+  content: { paddingTop: spacing.lg, flexGrow: 1 },
+  center: { flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
+  empty: { alignItems: 'center', gap: spacing.sm, marginTop: 80, paddingHorizontal: spacing.xxl },
+  emptyText: { textAlign: 'center', color: colors.muted, fontSize: 14 },
 });

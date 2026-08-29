@@ -2,6 +2,7 @@ import { Link } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { ProfileScreen } from '../../src/screens/ProfileScreen';
 import { useAuth } from '../../src/lib/auth-context';
+import { colors, radii, spacing } from '../../src/theme';
 
 export default function OwnProfileTab() {
   const { user, loading } = useAuth();
@@ -23,7 +24,15 @@ export default function OwnProfileTab() {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
-  muted: { color: '#71717a' },
-  link: { color: '#18181b', fontWeight: '600' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm, backgroundColor: colors.background },
+  muted: { color: colors.muted },
+  link: {
+    color: '#071018',
+    fontWeight: '700',
+    backgroundColor: colors.accent,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.pill,
+    overflow: 'hidden',
+  },
 });

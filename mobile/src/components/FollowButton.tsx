@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { rippleClient } from '../api/client';
+import { colors, radii, spacing } from '../theme';
 
 export function FollowButton({
   username,
@@ -39,18 +40,20 @@ export function FollowButton({
 
 const styles = StyleSheet.create({
   follow: {
-    backgroundColor: '#18181b',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    backgroundColor: colors.accent,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
   },
-  followText: { color: 'white', fontWeight: '600', fontSize: 14 },
+  followText: { color: '#071018', fontWeight: '700', fontSize: 14 },
   following: {
     borderWidth: 1,
-    borderColor: '#d4d4d8',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    borderColor: colors.line,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
   },
-  followingText: { color: '#18181b', fontSize: 14 },
+  followingText: { color: colors.foreground, fontSize: 14, fontWeight: '600' },
 });

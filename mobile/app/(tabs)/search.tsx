@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'expo-router';
 import { useState } from 'react';
@@ -12,6 +13,7 @@ import {
 } from 'react-native';
 import { UserListItem } from '../../src/components/UserListItem';
 import { rippleClient } from '../../src/api/client';
+import { colors, radii, spacing } from '../../src/theme';
 
 export default function SearchScreen() {
   const [q, setQ] = useState('');
@@ -29,13 +31,17 @@ export default function SearchScreen() {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        placeholder="Search users or posts…"
-        value={q}
-        onChangeText={setQ}
-        style={styles.input}
-        autoCapitalize="none"
-      />
+      <View style={styles.inputWrapper}>
+        <Ionicons name="search" size={18} color={colors.muted} />
+        <TextInput
+          placeholder="Search users or posts…"
+          placeholderTextColor={colors.muted}
+          value={q}
+          onChangeText={setQ}
+          style={styles.input}
+          autoCapitalize="none"
+        />
+      </View>
       {q.trim().length > 0 && (
         <FlatList
           data={usersQuery.data?.items ?? []}
@@ -66,22 +72,30 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  input: {
+  container: { flex: 1, padding: spacing.lg, backgroundColor: colors.background },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
     borderWidth: 1,
-    borderColor: '#d4d4d8',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.md,
+  },
+  input: {
+    flex: 1,
+    color: colors.foreground,
+    paddingVertical: spacing.sm + 2,
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#71717a',
-    marginTop: 16,
-    marginBottom: 8,
+    fontWeight: '700',
+    color: colors.foreground,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
   },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 2 },
-  gridItem: { width: '32%', aspectRatio: 1 },
+  gridItem: { width: '32%', aspectRatio: 1, borderRadius: radii.sm, overflow: 'hidden' },
   gridImage: { width: '100%', height: '100%' },
 });

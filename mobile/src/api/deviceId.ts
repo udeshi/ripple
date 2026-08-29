@@ -15,9 +15,6 @@ async function readPlatformId(): Promise<string | null> {
   return null;
 }
 
-// Stable per-install id used to bucket feature-flag rollouts for signed-out
-// users. Prefers the OS-provided install id; falls back to a generated,
-// persisted UUID if that's unavailable (e.g. on web/simulators).
 export async function getDeviceId(): Promise<string> {
   const existing = await SecureStore.getItemAsync(DEVICE_ID_KEY);
   if (existing) return existing;

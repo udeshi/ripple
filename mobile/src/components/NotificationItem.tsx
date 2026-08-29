@@ -2,11 +2,18 @@ import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import type { Notification } from '@ripple/api-client';
 import { Avatar } from './Avatar';
+import { colors, radii, spacing } from '../theme';
 
 const VERB: Record<Notification['type'], string> = {
   LIKE: 'liked your post',
   COMMENT: 'commented on your post',
   FOLLOW: 'followed you',
+};
+
+const ICON: Record<Notification['type'], string> = {
+  LIKE: '♥',
+  COMMENT: '💬',
+  FOLLOW: '➕',
 };
 
 export function NotificationItem({ notification }: { notification: Notification }) {
@@ -16,7 +23,9 @@ export function NotificationItem({ notification }: { notification: Notification 
 
   return (
     <Link href={href} asChild>
-      <Pressable style={[styles.row, !notification.read && styles.unread]}>
+      <Pressable
+        style={StyleSheet.flatten([styles.row, !notification.read && styles.unread])}
+      >
         <Avatar src={notification.actor.avatarUrl} alt={notification.actor.username} size={40} />
         <Text style={styles.text}>
           <Text style={styles.name}>
@@ -24,14 +33,24 @@ export function NotificationItem({ notification }: { notification: Notification 
           </Text>{' '}
           {VERB[notification.type]}
         </Text>
+        {!notification.read && <Text style={styles.dot}>{ICON[notification.type]}</Text>}
       </Pressable>
     </Link>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
-  unread: { backgroundColor: '#f4f4f5' },
-  text: { flex: 1, fontSize: 14 },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    borderRadius: radii.lg,
+    marginBottom: spacing.xs,
+  },
+  unread: { backgroundColor: colors.surface },
+  text: { flex: 1, fontSize: 14, color: colors.foreground },
   name: { fontWeight: '600' },
+  dot: { color: colors.accent, fontSize: 12 },
 });

@@ -1,4 +1,5 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
+import { colors } from '../theme';
 
 export function Avatar({
   src,
@@ -33,7 +34,7 @@ const styles = StyleSheet.create({
   fallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#e4e4e7',
+    backgroundColor: colors.surfaceRaised,
   },
-  fallbackText: { color: '#71717a', fontWeight: '600' },
+  fallbackText: { color: colors.muted, fontWeight: '600' },
 });

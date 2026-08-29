@@ -1,35 +1,52 @@
 import { ApiError } from '@ripple/api-client';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useAuth } from '../src/lib/auth-context';
+import { rippleClient } from '../src/api/client';
 import { colors, radii, spacing } from '../src/theme';
 
-export default function RegisterScreen() {
-  const { register } = useAuth();
-  const router = useRouter();
+export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
 
   async function onSubmit() {
     setError(null);
     setSubmitting(true);
     try {
-      await register(email, username, password);
-      router.back();
+      await rippleClient.auth.forgotPassword(email);
+      setSent(true);
     } catch (err) {
+      console.error('forgotPassword failed', err);
       setError(err instanceof ApiError ? err.message : 'Something went wrong');
     } finally {
       setSubmitting(false);
     }
   }
 
+  if (sent) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Check your email</Text>
+        <Text style={styles.muted}>
+          If that email has an account, we&apos;ve sent a link to reset your
+          password. Open it on your computer or phone&apos;s browser to
+          finish.
+        </Text>
+        <Link href="/login" style={styles.link}>
+          Back to log in
+        </Link>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign up</Text>
+      <Text style={styles.title}>Reset your password</Text>
+      <Text style={styles.muted}>
+        Enter your email and we&apos;ll send you a link to reset it.
+      </Text>
       <TextInput
         placeholder="Email"
         placeholderTextColor={colors.muted}
@@ -39,34 +56,18 @@ export default function RegisterScreen() {
         keyboardType="email-address"
         style={styles.input}
       />
-      <TextInput
-        placeholder="Username"
-        placeholderTextColor={colors.muted}
-        value={username}
-        onChangeText={setUsername}
-        autoCapitalize="none"
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Password"
-        placeholderTextColor={colors.muted}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
       {error && <Text style={styles.error}>{error}</Text>}
       <Pressable
         onPress={() => void onSubmit()}
-        disabled={submitting}
-        style={[styles.submit, submitting && styles.submitDisabled]}
+        disabled={submitting || !email}
+        style={[styles.submit, (submitting || !email) && styles.submitDisabled]}
       >
         <Text style={styles.submitText}>
-          {submitting ? 'Creating account…' : 'Sign up'}
+          {submitting ? 'Sending…' : 'Send reset link'}
         </Text>
       </Pressable>
       <Link href="/login" style={styles.link}>
-        Already have an account? Log in
+        Back to log in
       </Link>
     </View>
   );
@@ -74,7 +75,8 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.xxl, gap: spacing.md, justifyContent: 'center', backgroundColor: colors.background },
-  title: { fontSize: 26, fontWeight: '700', marginBottom: spacing.sm, color: colors.foreground },
+  title: { fontSize: 26, fontWeight: '700', color: colors.foreground },
+  muted: { color: colors.muted, fontSize: 14, marginBottom: spacing.xs, lineHeight: 20 },
   input: {
     borderWidth: 1,
     borderColor: colors.line,

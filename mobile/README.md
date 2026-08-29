@@ -18,6 +18,7 @@ File-based routing via `expo-router`:
 - `app/(tabs)` — Feed, Search, New post, Profile
 - `app/[username]` — public profile, followers, following
 - `app/posts/[id]` — post detail and comments
+- `app/chat` — inbox (`index.tsx`) and a conversation (`[cid].tsx`), via `stream-chat-expo`
 - `app/login.tsx`, `app/register.tsx` — presented as modals over the tabs
 - `src/api` — the platform-specific pieces `@ripple/api-client` needs: secure-store-backed token storage and a persisted device id
 - `src/lib/auth-context.tsx` — session state, backed by `@tanstack/react-query`
@@ -28,6 +29,12 @@ File-based routing via `expo-router`:
 `src/hooks/useFeatureFlags.ts` fetches `/flags` from the API on launch and exposes `isEnabled(key)`. Flags are seeded via `backend/prisma/seed.ts` and evaluated server-side with deterministic per-device rollout percentages — see `backend/src/flags`.
 
 This is how a feature (e.g. chat) can ship inside a normal OTA update but stay dark until you flip it on, gradually, without an app store release.
+
+## Chat
+
+Uses `stream-chat-expo` for the prebuilt inbox/message UI. Set `EXPO_PUBLIC_STREAM_API_KEY` (same key `backend`'s `STREAM_API_KEY` pairs with — the key is public, only the secret stays server-side). The message token itself comes from `GET /chat/token` on the backend.
+
+Pulls in native modules (reanimated, gesture-handler, op-sqlite, etc.), so testing chat needs a custom dev build (`eas build --profile development`), not plain Expo Go.
 
 ## OTA updates (EAS Update)
 
