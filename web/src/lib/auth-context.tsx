@@ -26,7 +26,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const meQuery = useQuery({
     queryKey: ME_QUERY_KEY,
-    queryFn: () => rippleClient.users.getMe(),
+    queryFn: async () => {
+      if (!(await browserTokenStore.getAccessToken())) return null;
+      return rippleClient.users.getMe();
+    },
     retry: false,
   });
 

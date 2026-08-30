@@ -1,6 +1,7 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { dedupeById } from "@ripple/api-client";
 import { use } from "react";
 import { UserListItem } from "@/components/UserListItem";
 import { rippleClient } from "@/lib/apiClient";
@@ -21,7 +22,7 @@ export default function FollowingPage({
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
   });
 
-  const users = query.data?.pages.flatMap((page) => page.items) ?? [];
+  const users = dedupeById(query.data?.pages.flatMap((page) => page.items) ?? []);
 
   return (
     <main className="mx-auto w-full max-w-xl flex-1 px-4 py-6">

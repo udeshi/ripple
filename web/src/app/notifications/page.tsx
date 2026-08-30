@@ -2,6 +2,7 @@
 
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
+import { dedupeById } from "@ripple/api-client";
 import { NotificationItem } from "@/components/NotificationItem";
 import { rippleClient } from "@/lib/apiClient";
 
@@ -32,7 +33,9 @@ export default function NotificationsPage() {
     }
   }, [markAllRead]);
 
-  const notifications = query.data?.pages.flatMap((page) => page.items) ?? [];
+  const notifications = dedupeById(
+    query.data?.pages.flatMap((page) => page.items) ?? [],
+  );
 
   return (
     <main className="mx-auto w-full max-w-xl flex-1 px-4 py-6">
