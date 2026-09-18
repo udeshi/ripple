@@ -19,7 +19,7 @@ export function NotificationItem({ notification }: { notification: Notification 
       className={
         notification.read
           ? "flex items-center gap-3 py-3"
-          : "flex items-center gap-3 rounded-md bg-zinc-100 px-2 py-3 dark:bg-zinc-900"
+          : "flex items-center gap-3 rounded-md bg-[var(--surface-raised)] px-2 py-3"
       }
     >
       <Avatar src={notification.actor.avatarUrl} alt={notification.actor.username} size={40} />

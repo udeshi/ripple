@@ -41,9 +41,9 @@ export default function NotificationsPage() {
     <main className="mx-auto w-full max-w-xl flex-1 px-4 py-6">
       <h1 className="mb-4 text-lg font-semibold">Notifications</h1>
       {!query.isLoading && notifications.length === 0 && (
-        <p className="text-zinc-500">No notifications yet.</p>
+        <p className="text-[var(--muted)]">No notifications yet.</p>
       )}
-      <div className="flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
+      <div className="flex flex-col divide-y divide-[var(--line)]">
         {notifications.map((notification) => (
           <NotificationItem key={notification.id} notification={notification} />
         ))}
@@ -52,7 +52,7 @@ export default function NotificationsPage() {
         <button
           type="button"
           onClick={() => void query.fetchNextPage()}
-          className="mt-4 w-full rounded-md border border-zinc-300 py-2 text-sm dark:border-zinc-700"
+          className="mt-4 w-full rounded-md border border-[var(--line)] py-2 text-sm"
         >
           Load more
         </button>
